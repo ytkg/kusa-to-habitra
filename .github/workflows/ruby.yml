@@ -1,0 +1,24 @@
+name: Ruby
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '*/5 * * * *'
+jobs:
+  ruby:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1
+    - name: Run script
+      env:
+        GITHUB_USERNAME: ${{ github.actor }}
+        HABITRA_ID: ${{ secrets.HABITRA_ID }}
+        HABITRA_PASSWORD: ${{ secrets.HABITRA_PASSWORD }}
+        HABITRA_HABIT_ID: ${{ secrets.HABITRA_HABIT_ID }}
+      run: TZ=Asia/Tokyo ruby app.rb
