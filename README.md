@@ -15,7 +15,7 @@ ruby app.rb
 ```
 ### GitHub Actionsの場合
 #### 環境変数の設定
-[Settings] -> [Sectets]に以下を登録
+[Settings] -> [Secrets]に以下を登録
 - HABITRA_ID: HabiTra の User ID
 - HABITRA_PASSWORD: HabiTra の User password
 - HABITRA_HABIT_ID: HabiTra の Habit ID
