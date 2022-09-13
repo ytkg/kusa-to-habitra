@@ -17,7 +17,7 @@ def fetch_last_contribution_date(username)
   res = Faraday.get(url)
   json = JSON.parse(res.body, symbolize_names: true)
 
-  json[:contributions].last[:date]
+  json[:contributions].select{ _1[:contributionCount] > 0 }.last[:date]
 end
 
 def track_habit(user_id, user_password, habit_id)
