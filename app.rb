@@ -1,4 +1,5 @@
 require 'bundler/inline'
+require 'date'
 
 gemfile do
   source 'https://rubygems.org'
@@ -12,25 +13,28 @@ def check_environment_variables
   end
 end
 
-def fetch_last_contribution_date(username)
+def fetch_contributions(username)
   url = "https://github-contributions-api.deno.dev/#{username}.json?flat=true"
   res = Faraday.get(url)
   json = JSON.parse(res.body, symbolize_names: true)
 
-  json[:contributions].select{ _1[:contributionCount] > 0 }.last[:date]
+  Hash[json[:contributions].map { |contribution| [contribution[:date], contribution[:contributionCount]] }]
 end
 
-def track_habit(user_id, user_password, habit_id)
+def track_habit(user_id, user_password, habit_id, date)
   url = "https://api.habitra.io/v1/users/#{user_id}/habits/#{habit_id}/tracks"
   headers = { 'Authorization' => "Basic #{Base64.encode64("#{user_id}:#{user_password}")}" }
-  res = Faraday.post(url, nil, headers)
+  res = Faraday.post(url, { date: }.to_json, headers)
 
   puts JSON.parse(res.body, symbolize_names: true)[:message]
 end
 
 check_environment_variables
 
-last_contribution_date = fetch_last_contribution_date(ENV['GITHUB_USERNAME'])
-today = Time.now.strftime('%Y-%m-%d')
+contributions = fetch_contributions(ENV['GITHUB_USERNAME'])
 
-track_habit(ENV['HABITRA_ID'], ENV['HABITRA_PASSWORD'], ENV['HABITRA_HABIT_ID']) if last_contribution_date == today
+today = Date.today
+
+(today-1..today).map(&:to_s).each do |date|
+  track_habit(ENV['HABITRA_ID'], ENV['HABITRA_PASSWORD'], ENV['HABITRA_HABIT_ID'], date) if contributions[date].positive?
+end
